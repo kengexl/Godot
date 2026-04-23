@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="新的2d游戏尝试"
-config/features=PackedStringArray("4.5", "Forward Plus")
+config/name="SlayTheSpireRogueLikeRemake"
+config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]

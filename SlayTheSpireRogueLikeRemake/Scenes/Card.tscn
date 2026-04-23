@@ -1,0 +1,55 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbkrir2sbbhc8"]
+
+[ext_resource type="Script" uid="uid://xu7j70vrjt7t" path="res://Script/Card.cs" id="1_pnb5n"]
+
+[node name="Card" type="Control" node_paths=PackedStringArray("NameLabel", "CostLabel", "DescLabel")]
+custom_minimum_size = Vector2(180, 250)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_pnb5n")
+NameLabel = NodePath("NameLabel")
+CostLabel = NodePath("CostLabel")
+DescLabel = NodePath("DescLabel")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "测试"
+
+[node name="CostLabel" type="Label" parent="."]
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 23.0
+text = "测试"
+
+[node name="DescLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "测试"

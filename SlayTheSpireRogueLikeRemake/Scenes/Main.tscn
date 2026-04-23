@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdwlijv7m5owl"]
+
+[ext_resource type="Script" uid="uid://6268oopkdugl" path="res://Script/BattleManager.cs" id="1_r150o"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Node2D" type="Node2D" parent="." node_paths=PackedStringArray("HandContainer", "DebugLabel")]
+script = ExtResource("1_r150o")
+HandContainer = NodePath("../HandContainer")
+DebugLabel = NodePath("../Label")
+
+[node name="HandContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(1000, 220)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_top = -220.0
+offset_right = 500.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 4
+
+[node name="EndTurnButton" type="Button" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 498.0
+offset_top = -645.0
+offset_right = 570.0
+offset_bottom = -614.0
+grow_horizontal = 0
+text = "结束回合"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(0, -326.07)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -566.0
+offset_top = -643.0
+offset_right = -370.0
+offset_bottom = -556.0
+
+[connection signal="pressed" from="EndTurnButton" to="Node2D" method="EndTurn"]
