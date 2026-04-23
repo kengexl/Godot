@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://ci5vbpfalwhwy"]
+
+[ext_resource type="Texture2D" uid="uid://cvv3dgnu5twtq" path="res://Assest/卡牌1.png" id="1_0qqmn"]
+
+[node name="Card" type="Node2D"]
+
+[node name="卡牌1" type="Sprite2D" parent="."]
+position = Vector2(-0.22454834, 0.34823227)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("1_0qqmn")
