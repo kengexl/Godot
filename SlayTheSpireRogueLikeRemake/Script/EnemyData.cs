@@ -3,7 +3,7 @@ using System;
 
 public partial class EnemyData : Resource
 {
-    [Export] public string EnrmyName;  //怪物名字
-    [Export] public int HP;  //生命
-    [Export] public int Atk;  //伤害值
+    [Export] public string EnemyName;  // 修正拼写错误 EnrmyName -> EnemyName
+    [Export] public int HP;  // 生命
+    [Export] public int Atk;  // 伤害值
 }

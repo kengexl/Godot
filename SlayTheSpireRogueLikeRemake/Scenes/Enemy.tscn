@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://b14s5ocd02v1y"]
+
+[ext_resource type="Script" uid="uid://bmr3yfgeh0dgp" path="res://Script/EnemyBase.cs" id="1_wovta"]
+[ext_resource type="Texture2D" uid="uid://csojda0sak7xw" path="res://icon.svg" id="2_xeo28"]
+
+[node name="Enemy" type="Node2D"]
+script = ExtResource("1_wovta")
+EnemyName = "史莱姆"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_xeo28")

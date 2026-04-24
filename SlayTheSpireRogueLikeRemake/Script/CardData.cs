@@ -1,10 +1,15 @@
 using Godot;
-using System;
 
+// 加上这个特性，让它能在编辑器里作为资源创建
+[GlobalClass]
 public partial class CardData : Resource
 {
-    [Export] public string CardName; //卡片名字
-    [Export] public int Cost; //卡片的费用
-    [Export] public int Attack; //卡片的攻击
-    [Export] public string Desc; 
+    [Export] public string CardName;
+    [Export] public int Cost;
+    [Export] public int Attack;
+    [Export] public int Defense;
+    [Export] public string Desc;
+
+    // 构造函数（可选，方便代码里创建）
+    public CardData() { }
 }
