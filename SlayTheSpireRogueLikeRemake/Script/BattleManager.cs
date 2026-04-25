@@ -4,93 +4,62 @@ using System.Collections.Generic;
 using System.Linq;
 using Control = Godot.Control;
 
-// 战斗管理器：全局唯一单例，负责整个战斗流程
 public partial class BattleManager : Node2D
 {
-    // 单例：让任何脚本都能通过 Instance 访问这里
     public static BattleManager Instance;
 
-    // 编辑器拖拽：玩家角色脚本
     [Export] public Player Player;
-    
-    // 编辑器拖拽：敌人角色脚本
     [Export] public EnemyBase Enemy;
-    
-    // 编辑器拖拽：手牌容器（放卡牌的父节点）
     [Export] public Container HandContainer;
-    
-    // 编辑器拖拽：卡牌预制体
     [Export] public PackedScene CardPrefab;
 
-    // 抽牌堆：存放没抽的卡牌
-    public List<CardData> DrawPile = new();
-    
-    // 手牌：当前拿在手里的卡牌
+    // ✅ 直接拖拽，不再用单例
+    [Export] public DrawPileUI DrawPile;
+    [Export] public DiscardPileUI DiscardPile;
+
+    [Export] public Label LabelCost;
+    [Export] public Label LabelDebug1;
+    [Export] public Label LabelDebug2;
+
     public List<Card> HandCards = new();
-    
-    // 弃牌堆：打出过的卡牌
-    public List<CardData> DiscardPile = new();
 
-    // 当前可用费用
     public int CurrentEnergy;
-    
-    // 每回合最大费用（可在编辑器修改）
     [Export] public int MaxEnergy = 3;
-    
-    // 每回合抽卡数量
     [Export] public int DrawCardCountPerTurn = 3;
-
-    // 战斗是否结束
     public bool IsBattleEnd;
 
-    // 场景初始化
     public override void _Ready()
     {
-        // 单例防重复
-        if (Instance != null && Instance != this)
-        {
-            QueueFree();
-            return;
-        }
+        if (Instance != null && Instance != this) { QueueFree(); return; }
         Instance = this;
 
-        // 校验关键引用
-        if (Player == null || Enemy == null || HandContainer == null || CardPrefab == null)
+        // 安全检查
+        if (Player == null || Enemy == null || HandContainer == null || CardPrefab == null || DrawPile == null || DiscardPile == null)
         {
-            GD.PrintErr("BattleManager：关键节点未配置！请检查编辑器拖拽赋值");
+            PrintDebug("错误", "关键节点未配置");
             return;
         }
 
-        LoadCardsFromCSV();  // 从CSV读取所有卡牌
-        Shuffle();           // 洗牌
-        StartPlayerTurn();   // 开始玩家回合
+        LoadCardsFromCSV();
+        StartPlayerTurn();
     }
 
-    // 从CSV表格读取所有卡牌
     void LoadCardsFromCSV()
     {
         try
         {
             var file = FileAccess.Open("res://Data/Cards.csv", FileAccess.ModeFlags.Read);
-            if (file == null)
-            {
-                GD.PrintErr("卡牌CSV文件不存在！路径：res://Data/Cards.csv");
-                return;
-            }
-
-            file.GetCsvLine(); // 跳过标题
+            if (file == null) { PrintDebug("错误", "找不到 Cards.csv"); return; }
+            file.GetCsvLine();
 
             while (!file.EofReached())
             {
                 var line = file.GetCsvLine();
                 if (line == null || line.Length < 5) continue;
 
-                if (!int.TryParse(line[1], out int cost) || 
-                    !int.TryParse(line[2], out int attack) || 
-                    !int.TryParse(line[3], out int defense))
-                {
-                    continue;
-                }
+                if (!int.TryParse(line[1], out int cost) ||
+                    !int.TryParse(line[2], out int attack) ||
+                    !int.TryParse(line[3], out int defense)) continue;
 
                 CardData data = new CardData();
                 data.CardName = line[0];
@@ -99,32 +68,26 @@ public partial class BattleManager : Node2D
                 data.Defense = defense;
                 data.Desc = line[4];
 
-                DrawPile.Add(data);
+                // ✅ 使用拖拽引用，非单例
+                DrawPile.AddCard(data);
             }
-
             file.Close();
+            PrintDebug("加载", "卡牌初始化完成");
         }
-        catch (Exception e)
-        {
-            GD.PrintErr($"加载卡牌CSV失败：{e.Message}");
-        }
+        catch (Exception e) { PrintDebug("错误", e.Message); }
     }
 
-    // ======================================================================
-    // ✅ 洗牌逻辑（已经写在这里！正常打乱抽牌堆）
-    // ======================================================================
-    public void Shuffle()
+    public List<CardData> Shuffle(List<CardData> list)
     {
-        Random random = new Random();
-        DrawPile = DrawPile.OrderBy(x => random.Next()).ToList();
+        Random rand = new Random();
+        return list.OrderBy(a => rand.Next()).ToList();
     }
 
-    // 开始玩家回合
     public void StartPlayerTurn()
     {
         if (IsBattleEnd) return;
-
         CurrentEnergy = MaxEnergy;
+        RefreshCostUI();
         DrawCards(DrawCardCountPerTurn);
 
         foreach (var card in HandCards)
@@ -132,35 +95,40 @@ public partial class BattleManager : Node2D
             if (card != null)
                 card.MouseFilter = Control.MouseFilterEnum.Stop;
         }
+        PrintDebug("回合", "玩家回合开始");
     }
 
-    // 抽卡逻辑
-    public void DrawCards(int count)
+    public void DrawCards(int total)
     {
-        if (count <= 0) return;
+        int remaining = total;
 
-        for (int i = 0; i < count; i++)
+        while (remaining > 0)
         {
-            if (DrawPile.Count == 0)
+            if (DrawPile.GetCount() == 0 && DiscardPile.GetCount() > 0)
             {
-                if (DiscardPile.Count == 0) break;
+                var discardCards = DiscardPile.GetAllCards();
+                discardCards = Shuffle(discardCards);
 
-                DrawPile.AddRange(DiscardPile);
-                DiscardPile.Clear();
-                Shuffle();
+                DrawPile.Clear();
+                DrawPile.AddCardsRange(discardCards);
+                DiscardPile.ClearAll();
+
+                PrintDebug("补抽", "弃牌堆 → 抽牌堆");
             }
 
-            var cardData = DrawPile[DrawPile.Count - 1];
-            DrawPile.RemoveAt(DrawPile.Count - 1);
+            if (DrawPile.GetCount() == 0)
+                break;
 
-            var cardInstance = CardPrefab.Instantiate<Card>();
-            cardInstance.Data = cardData;
-            HandContainer.AddChild(cardInstance);
-            HandCards.Add(cardInstance);
+            CardData data = DrawPile.DrawLastCard();
+            Card card = CardPrefab.Instantiate<Card>();
+            card.Data = data;
+            HandContainer.AddChild(card);
+            HandCards.Add(card);
+
+            remaining--;
         }
     }
 
-    // 打出卡牌
     public void PlayCard(Card card)
     {
         if (IsBattleEnd) return;
@@ -169,30 +137,32 @@ public partial class BattleManager : Node2D
 
         ExecuteCardEffect(card.Data);
         CurrentEnergy -= card.Data.Cost;
+        RefreshCostUI();
 
-        DiscardPile.Add(card.Data);
+        DiscardPile.AddCard(card.Data);
         HandCards.Remove(card);
         card.QueueFree();
-
-        bool hasPlayable = HandCards.Any(c => c.Data.Cost <= CurrentEnergy);
-        if (!hasPlayable && CurrentEnergy == 0)
-            EndPlayerTurn();
     }
 
-    // 执行卡牌效果
-    private void ExecuteCardEffect(CardData cardData)
+    private void ExecuteCardEffect(CardData data)
     {
-        if (cardData.Attack > 0)
-            Enemy.TakeDamage(cardData.Attack);
-
-        if (cardData.Defense > 0)
-            Player.Heal(cardData.Defense);
+        if (data.Attack > 0) Enemy.TakeDamage(data.Attack);
+        if (data.Defense > 0) Player.Heal(data.Defense);
     }
 
-    // 结束玩家回合
-    public void EndPlayerTurn()
+    public void EndTurn()
     {
         if (IsBattleEnd) return;
+
+        foreach (var card in HandCards.ToList())
+        {
+            if (card != null && card.Data != null)
+            {
+                DiscardPile.AddCard(card.Data);
+                card.QueueFree();
+            }
+        }
+        HandCards.Clear();
 
         foreach (var card in HandCards)
         {
@@ -203,33 +173,42 @@ public partial class BattleManager : Node2D
         GetTree().CreateTimer(1.0f).Timeout += () =>
         {
             Enemy.DoAction();
-
-            if (Player.CurrentHp <= 0)
-                return;
-
+            if (Player.CurrentHp <= 0) return;
             GetTree().CreateTimer(1.0f).Timeout += StartPlayerTurn;
         };
+
+        PrintDebug("回合", "玩家回合结束");
     }
 
-    // 胜利
     public void GameWin()
     {
         IsBattleEnd = true;
         GetTree().Paused = true;
+        PrintDebug("战斗", "胜利！");
     }
 
-    // 失败
     public void GameLose()
     {
         IsBattleEnd = true;
         GetTree().Paused = true;
+        PrintDebug("战斗", "失败！");
+    }
+
+    void RefreshCostUI()
+    {
+        if (LabelCost != null)
+            LabelCost.Text = $"费用：{CurrentEnergy}/{MaxEnergy}";
+    }
+
+    void PrintDebug(string title, string msg)
+    {
+        if (LabelDebug1 != null) LabelDebug1.Text = title;
+        if (LabelDebug2 != null) LabelDebug2.Text = msg;
     }
 
     public override void _ExitTree()
     {
         Instance = null;
-        DrawPile.Clear();
         HandCards.Clear();
-        DiscardPile.Clear();
     }
 }

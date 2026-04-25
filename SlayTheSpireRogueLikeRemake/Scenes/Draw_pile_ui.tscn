@@ -1,0 +1,75 @@
+[gd_scene load_steps=5 format=3 uid="uid://cmayh5apuw3qj"]
+
+[ext_resource type="Script" uid="uid://b63ms5mf4ny0w" path="res://Script/DrawPileUI.cs" id="1_8xyjd"]
+[ext_resource type="Texture2D" uid="uid://csojda0sak7xw" path="res://icon.svg" id="2_qlumd"]
+[ext_resource type="Script" uid="uid://criryg2brxoc0" path="res://Script/DrawPileBrowserPanel.cs" id="3_1h3wx"]
+[ext_resource type="Texture2D" uid="uid://da2n2gta48f6y" path="res://Assest/起舞的少女.jpg" id="4_42vcg"]
+
+[node name="DrawPileUI" type="Node2D" node_paths=PackedStringArray("LabelDrawCount")]
+script = ExtResource("1_8xyjd")
+LabelDrawCount = NodePath("Label2")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -23.0
+offset_top = -41.0
+offset_right = 25.0
+offset_bottom = -18.0
+text = "抽牌堆"
+metadata/_edit_use_anchors_ = true
+
+[node name="Label2" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -60.0
+offset_right = 20.0
+offset_bottom = -37.0
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.3109674, 0.3109674)
+texture = ExtResource("2_qlumd")
+
+[node name="Button" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0)
+self_modulate = Color(1, 1, 1, 0)
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+
+[node name="DrawPileBrowserPanel" type="Node2D" parent="." node_paths=PackedStringArray("Background", "Frame", "CardList")]
+script = ExtResource("3_1h3wx")
+Background = NodePath("ColorRect")
+Frame = NodePath("Sprite2D")
+CardList = NodePath("CardList")
+
+[node name="ColorRect" type="ColorRect" parent="DrawPileBrowserPanel"]
+custom_minimum_size = Vector2(1920, 1080)
+offset_left = -958.0
+offset_top = -533.0
+offset_right = 962.0
+offset_bottom = 547.0
+color = Color(0.5647059, 0.5647059, 0.5647059, 0.49019608)
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="DrawPileBrowserPanel"]
+position = Vector2(20, 20)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_42vcg")
+
+[node name="CardList" type="HBoxContainer" parent="DrawPileBrowserPanel"]
+custom_minimum_size = Vector2(800, 600)
+offset_left = -382.0
+offset_top = -303.0
+offset_right = 418.0
+offset_bottom = 297.0
+theme_override_constants/separation = 20
+alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelTargetPos" type="Node2D" parent="DrawPileBrowserPanel"]
+position = Vector2(910, -533)
+
+[node name="PanelHidePos" type="Node2D" parent="DrawPileBrowserPanel"]
+position = Vector2(910, 547)
+
+[connection signal="pressed" from="Button" to="DrawPileBrowserPanel" method="OpenDrawPanel"]

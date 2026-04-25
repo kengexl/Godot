@@ -1,0 +1,75 @@
+[gd_scene load_steps=5 format=3 uid="uid://dg55smn84r27l"]
+
+[ext_resource type="Script" uid="uid://rvd1fegiw42j" path="res://Script/DiscardPileUI.cs" id="1_as6np"]
+[ext_resource type="Texture2D" uid="uid://csojda0sak7xw" path="res://icon.svg" id="2_ohrgm"]
+[ext_resource type="Script" uid="uid://cl5b8kotf7pwy" path="res://Script/DiscardPileBrowserPanel.cs" id="3_ic1q4"]
+[ext_resource type="Texture2D" uid="uid://da2n2gta48f6y" path="res://Assest/起舞的少女.jpg" id="4_ic1q4"]
+
+[node name="DiscardPileUI" type="Node2D" node_paths=PackedStringArray("LabelDiscardCount")]
+script = ExtResource("1_as6np")
+LabelDiscardCount = NodePath("Label2")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -24.0
+offset_top = -48.0
+offset_right = 24.0
+offset_bottom = -25.0
+text = "弃牌堆"
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-0.2925415, 0.5210266)
+scale = Vector2(0.3984375, 0.3984375)
+texture = ExtResource("2_ohrgm")
+
+[node name="Label2" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -68.0
+offset_right = 20.0
+offset_bottom = -45.0
+metadata/_edit_use_anchors_ = true
+
+[node name="Button" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0)
+self_modulate = Color(1, 1, 1, 0)
+offset_left = -26.0
+offset_top = -25.0
+offset_right = 26.0
+offset_bottom = 26.0
+
+[node name="DiscardPileBrowserPanel" type="Node2D" parent="." node_paths=PackedStringArray("Background", "Frame", "CardList")]
+script = ExtResource("3_ic1q4")
+Background = NodePath("ColorRect")
+Frame = NodePath("Sprite2D")
+CardList = NodePath("CardList")
+
+[node name="ColorRect" type="ColorRect" parent="DiscardPileBrowserPanel"]
+custom_minimum_size = Vector2(1920, 1080)
+offset_left = -958.0
+offset_top = -533.0
+offset_right = 962.0
+offset_bottom = 547.0
+color = Color(0.5647059, 0.5647059, 0.5647059, 0.49019608)
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="DiscardPileBrowserPanel"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_ic1q4")
+
+[node name="CardList" type="HBoxContainer" parent="DiscardPileBrowserPanel"]
+custom_minimum_size = Vector2(800, 600)
+offset_left = -382.0
+offset_top = -303.0
+offset_right = 418.0
+offset_bottom = 297.0
+theme_override_constants/separation = 20
+alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelTargetPos" type="Node2D" parent="DiscardPileBrowserPanel"]
+position = Vector2(-803, -502)
+
+[node name="PanelHidePos" type="Node2D" parent="DiscardPileBrowserPanel"]
+position = Vector2(-803, 578)
+
+[connection signal="pressed" from="Button" to="DiscardPileBrowserPanel" method="OpenDiscardPanel"]
