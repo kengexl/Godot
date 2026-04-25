@@ -13,7 +13,6 @@ public partial class BattleManager : Node2D
     [Export] public Container HandContainer;
     [Export] public PackedScene CardPrefab;
 
-    // ✅ 直接拖拽，不再用单例
     [Export] public DrawPileUI DrawPile;
     [Export] public DiscardPileUI DiscardPile;
 
@@ -22,7 +21,6 @@ public partial class BattleManager : Node2D
     [Export] public Label LabelDebug2;
 
     public List<Card> HandCards = new();
-
     public int CurrentEnergy;
     [Export] public int MaxEnergy = 3;
     [Export] public int DrawCardCountPerTurn = 3;
@@ -33,17 +31,43 @@ public partial class BattleManager : Node2D
         if (Instance != null && Instance != this) { QueueFree(); return; }
         Instance = this;
 
-        // 安全检查
         if (Player == null || Enemy == null || HandContainer == null || CardPrefab == null || DrawPile == null || DiscardPile == null)
         {
             PrintDebug("错误", "关键节点未配置");
             return;
         }
 
-        LoadCardsFromCSV();
+        // ====================== 步骤7 核心：优先加载自定义卡组 ======================
+        LoadCustomDeck();
+        // ==========================================================================
+
         StartPlayerTurn();
     }
 
+    // 新增：加载自定义卡组（有选卡用自定义，无则用默认）
+    private void LoadCustomDeck()
+    {
+        try
+        {
+            // 优先使用我们选择的全局卡组
+            if (CardAllTestChoose.GlobalBattleDeck != null && CardAllTestChoose.GlobalBattleDeck.Count > 0)
+            {
+                PrintDebug("自定义卡组", $"加载成功：{CardAllTestChoose.GlobalBattleDeck.Count} 张");
+                DrawPile.AddCardsRange(CardAllTestChoose.GlobalBattleDeck);
+                return;
+            }
+
+            // 无自定义卡组 → 加载默认CSV卡组（原有逻辑）
+            LoadCardsFromCSV();
+        }
+        catch (Exception e)
+        {
+            PrintDebug("错误", e.Message);
+            LoadCardsFromCSV();
+        }
+    }
+
+    // 原有默认卡组加载逻辑（保留）
     void LoadCardsFromCSV()
     {
         try
@@ -68,15 +92,15 @@ public partial class BattleManager : Node2D
                 data.Defense = defense;
                 data.Desc = line[4];
 
-                // ✅ 使用拖拽引用，非单例
                 DrawPile.AddCard(data);
             }
             file.Close();
-            PrintDebug("加载", "卡牌初始化完成");
+            PrintDebug("加载", "默认卡牌初始化完成");
         }
         catch (Exception e) { PrintDebug("错误", e.Message); }
     }
 
+    // 以下代码完全不变，保留你原有所有逻辑
     public List<CardData> Shuffle(List<CardData> list)
     {
         Random rand = new Random();

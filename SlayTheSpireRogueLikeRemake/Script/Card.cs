@@ -2,53 +2,58 @@ using Godot;
 
 public partial class Card : Control
 {
-    [Export] public CardData Data;
+    public CardData Data;
+    private bool _isBattleClickEnabled = true;
 
-    [Export] public Label NameLabel;
-    [Export] public Label CostLabel;
-    [Export] public Label DescLabel;
+    private Label _labelName;
+    private Label _labelCost;
+    private Label _labelAttack;
+    private Label _labelDefense;
+    private Label _labelDesc;
 
     public override void _Ready()
     {
-         GD.Print("✅ Card脚本初始化成功"); // 加这句测试
-        // 关键！绑定点击事件
-        GuiInput += OnCardClick;
+        // 节点初始化
+        _labelName = GetNode<Label>("Label_Name");
+        _labelCost = GetNode<Label>("Label_Cost");
+        _labelAttack = GetNode<Label>("Label_Attack");
+        _labelDefense = GetNode<Label>("Label_Defense");
+        _labelDesc = GetNode<Label>("Label_Desc");
 
-        // 刷新UI
-        RefreshCardUI();
+        // ✅ 关键修复：节点初始化完成后，再更新一次UI
+        UpdateCardUI();
     }
 
-    void RefreshCardUI()
+    public void SetCardData(CardData cardData)
+    {
+        Data = cardData;
+        UpdateCardUI();
+    }
+
+    private void UpdateCardUI()
     {
         if (Data == null) return;
-        NameLabel.Text = Data.CardName;
-        CostLabel.Text = Data.Cost.ToString();
-        DescLabel.Text = Data.Desc;
+
+        // ✅ 关键修复：给每个Label赋值加上空检查，防止节点未初始化时报错
+        if (_labelName != null) _labelName.Text = Data.CardName;
+        if (_labelCost != null) _labelCost.Text = Data.Cost.ToString();
+        if (_labelAttack != null) _labelAttack.Text = Data.Attack.ToString();
+        if (_labelDefense != null) _labelDefense.Text = Data.Defense.ToString();
+        if (_labelDesc != null) _labelDesc.Text = Data.Desc;
     }
 
-    void OnCardClick(InputEvent evt)
+    public void DisableBattleClick()
     {
-        // 只响应鼠标左键按下
-        if (evt is InputEventMouseButton btn && btn.Pressed && btn.ButtonIndex == MouseButton.Left)
+        _isBattleClickEnabled = false;
+    }
+
+    public override void _GuiInput(InputEvent @event)
+    {
+        if (!_isBattleClickEnabled) return;
+
+        if (@event is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
         {
-            GD.Print($"[点击测试] 卡牌被点击：{Data?.CardName}");
             BattleManager.Instance.PlayCard(this);
         }
     }
-    public void SetCardData(CardData data)
-{
-    if (data == null)
-    {
-        GD.PrintErr("卡牌数据为空！");
-        return;
-    }
-
-    // 这里写你原本初始化卡牌UI的逻辑
-    // 比如：更新卡牌的名称、描述、攻击力、费用等
-    // 举个例子：
-    // GetNode<Label>("NameLabel").Text = data.Name;
-    // GetNode<Label>("DescLabel").Text = data.Description;
-    // GetNode<Label>("CostLabel").Text = data.Cost.ToString();
-    // GetNode<Label>("AttackLabel").Text = data.Attack.ToString();
-}
 }

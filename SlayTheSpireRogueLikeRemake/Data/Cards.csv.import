@@ -2,14 +2,14 @@
 
 importer="csv_translation"
 type="Translation"
-uid="uid://dqkaixkooyq07"
+uid="uid://dyd1qc5hfl5vd"
 
 [deps]
 
-files=["res://Data/Cards.Cost.translation", "res://Data/Cards.Attack.translation", "res://Data/Cards.Defense.translation", "res://Data/Cards.Desc.translation"]
+files=["res://Data/Cards.费用.translation", "res://Data/Cards.攻击力.translation", "res://Data/Cards.防御力.translation", "res://Data/Cards.描述.translation"]
 
 source_file="res://Data/Cards.csv"
-dest_files=["res://Data/Cards.Cost.translation", "res://Data/Cards.Attack.translation", "res://Data/Cards.Defense.translation", "res://Data/Cards.Desc.translation"]
+dest_files=["res://Data/Cards.费用.translation", "res://Data/Cards.攻击力.translation", "res://Data/Cards.防御力.translation", "res://Data/Cards.描述.translation"]
 
 [params]
 
