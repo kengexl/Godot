@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://d4mqef34k77v6"]
+
+[node name="MapNode" type="Button"]
+offset_right = 40.0
+offset_bottom = 23.0
+flat = true
+
+[node name="Label_Type" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "节点"
+horizontal_alignment = 1
+vertical_alignment = 1

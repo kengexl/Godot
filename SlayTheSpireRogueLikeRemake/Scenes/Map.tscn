@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://ci3tqgyse1uot"]
+
+[ext_resource type="Script" uid="uid://cag1dh840kure" path="res://Script/MapScript/MapGenerator.cs" id="1_s486e"]
+[ext_resource type="Resource" uid="uid://cyj5t5ebbc1tx" path="res://Map/DefaultMapConfig.tres" id="2_7yn8b"]
+[ext_resource type="Script" uid="uid://cug78dhysbhgv" path="res://Script/MapScript/MapRenderer.cs" id="3_etk83"]
+[ext_resource type="PackedScene" uid="uid://d4mqef34k77v6" path="res://Scenes/MapNode.tscn" id="4_qumfl"]
+
+[node name="MapGenerator" type="Node"]
+script = ExtResource("1_s486e")
+Config = ExtResource("2_7yn8b")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scroll_vertical_custom_step = 50.0
+
+[node name="MapContent" type="Control" parent="ScrollContainer"]
+custom_minimum_size = Vector2(1280, 5000)
+layout_mode = 2
+
+[node name="MapRenderer" type="Node2D" parent="ScrollContainer/MapContent" node_paths=PackedStringArray("MapGenerator", "LinesContainer", "NodesContainer")]
+position = Vector2(600, 50)
+script = ExtResource("3_etk83")
+MapGenerator = NodePath("../../..")
+MapNodePrefab = ExtResource("4_qumfl")
+LinesContainer = NodePath("LinesContainer")
+NodesContainer = NodePath("NodesContainer")
+
+[node name="LinesContainer" type="Node2D" parent="ScrollContainer/MapContent/MapRenderer"]
+
+[node name="NodesContainer" type="Node2D" parent="ScrollContainer/MapContent/MapRenderer"]
