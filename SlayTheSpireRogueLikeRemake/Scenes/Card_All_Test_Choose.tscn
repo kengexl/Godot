@@ -3,11 +3,17 @@
 [ext_resource type="Script" uid="uid://7vxu3digqr1h" path="res://Script/CardAllTestChoose.cs" id="1_kbilb"]
 [ext_resource type="PackedScene" uid="uid://dbkrir2sbbhc8" path="res://Scenes/Card.tscn" id="2_wued8"]
 
-[node name="Card_All_Test_Choose" type="Control" node_paths=PackedStringArray("HFlow_Cards", "Label_Debug", "UI_Choose", "UI_Show", "HFlow_Show")]
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="Card_All_Test_Choose" type="Control" parent="." node_paths=PackedStringArray("HFlow_Cards", "Label_Debug", "UI_Choose", "UI_Show", "HFlow_Show")]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
 offset_bottom = 40.0
+grow_horizontal = 2
 script = ExtResource("1_kbilb")
 HFlow_Cards = NodePath("UI_Choose/VBox_Choose/Scroll_Choose/HFlow_Cards")
 Label_Debug = NodePath("UI_Choose/VBox_Choose/Label_Debug")
@@ -16,50 +22,50 @@ UI_Show = NodePath("UI_Show")
 HFlow_Show = NodePath("UI_Show/VBox_Show/Scroll_Show/HFlow_Show")
 CardPrefab = ExtResource("2_wued8")
 
-[node name="UI_Choose" type="Control" parent="."]
+[node name="UI_Choose" type="Control" parent="Card_All_Test_Choose"]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBox_Choose" type="VBoxContainer" parent="UI_Choose"]
+[node name="VBox_Choose" type="VBoxContainer" parent="Card_All_Test_Choose/UI_Choose"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Label_Title" type="Label" parent="UI_Choose/VBox_Choose"]
+[node name="Label_Title" type="Label" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose"]
 layout_mode = 2
 
-[node name="Scroll_Choose" type="ScrollContainer" parent="UI_Choose/VBox_Choose"]
+[node name="Scroll_Choose" type="ScrollContainer" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose"]
 custom_minimum_size = Vector2(700, 500)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="HFlow_Cards" type="HFlowContainer" parent="UI_Choose/VBox_Choose/Scroll_Choose"]
+[node name="HFlow_Cards" type="HFlowContainer" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose/Scroll_Choose"]
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/h_separation = 15
 theme_override_constants/v_separation = 15
 alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UI_Choose/VBox_Choose"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose"]
 layout_mode = 2
 
-[node name="Button_Choose" type="Button" parent="UI_Choose/VBox_Choose/HBoxContainer"]
+[node name="Button_Choose" type="Button" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose/HBoxContainer"]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 text = "Choose"
 
-[node name="Button_Show" type="Button" parent="UI_Choose/VBox_Choose/HBoxContainer"]
+[node name="Button_Show" type="Button" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose/HBoxContainer"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 text = "Show
 "
 
-[node name="Label_Debug" type="Label" parent="UI_Choose/VBox_Choose"]
+[node name="Label_Debug" type="Label" parent="Card_All_Test_Choose/UI_Choose/VBox_Choose"]
 layout_mode = 2
 
-[node name="Button_Reset" type="Button" parent="UI_Choose"]
+[node name="Button_Reset" type="Button" parent="Card_All_Test_Choose/UI_Choose"]
 layout_mode = 0
 offset_left = 123.0
 offset_top = 531.0
@@ -67,46 +73,46 @@ offset_right = 131.0
 offset_bottom = 539.0
 text = "Reset"
 
-[node name="UI_Show" type="Control" parent="."]
+[node name="UI_Show" type="Control" parent="Card_All_Test_Choose"]
 visible = false
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBox_Show" type="VBoxContainer" parent="UI_Show"]
+[node name="VBox_Show" type="VBoxContainer" parent="Card_All_Test_Choose/UI_Show"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Label_ShowTitle" type="Label" parent="UI_Show/VBox_Show"]
+[node name="Label_ShowTitle" type="Label" parent="Card_All_Test_Choose/UI_Show/VBox_Show"]
 layout_mode = 2
 
-[node name="Scroll_Show" type="ScrollContainer" parent="UI_Show/VBox_Show"]
+[node name="Scroll_Show" type="ScrollContainer" parent="Card_All_Test_Choose/UI_Show/VBox_Show"]
 custom_minimum_size = Vector2(800, 550)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="HFlow_Show" type="HFlowContainer" parent="UI_Show/VBox_Show/Scroll_Show"]
+[node name="HFlow_Show" type="HFlowContainer" parent="Card_All_Test_Choose/UI_Show/VBox_Show/Scroll_Show"]
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 alignment = 1
 
-[node name="Button_Back" type="Button" parent="UI_Show/VBox_Show"]
+[node name="Button_Back" type="Button" parent="Card_All_Test_Choose/UI_Show/VBox_Show"]
 layout_mode = 2
 text = "Back"
 
-[node name="Button_StartBattle" type="Button" parent="UI_Show"]
+[node name="Button_StartBattle" type="Button" parent="Card_All_Test_Choose/UI_Show"]
 layout_mode = 0
 offset_top = 616.0
 offset_right = 800.0
 offset_bottom = 647.0
 text = "确认卡组，进入战斗！"
 
-[connection signal="pressed" from="UI_Choose/VBox_Choose/HBoxContainer/Button_Choose" to="." method="OnButtonChoosePressed"]
-[connection signal="pressed" from="UI_Choose/VBox_Choose/HBoxContainer/Button_Show" to="." method="OnButtonShowPressed"]
-[connection signal="pressed" from="UI_Choose/Button_Reset" to="." method="OnButtonResetPressed"]
-[connection signal="pressed" from="UI_Show/VBox_Show/Button_Back" to="." method="OnButtonBackPressed"]
-[connection signal="pressed" from="UI_Show/Button_StartBattle" to="." method="OnStartBattlePressed"]
+[connection signal="pressed" from="Card_All_Test_Choose/UI_Choose/VBox_Choose/HBoxContainer/Button_Choose" to="Card_All_Test_Choose" method="OnButtonChoosePressed"]
+[connection signal="pressed" from="Card_All_Test_Choose/UI_Choose/VBox_Choose/HBoxContainer/Button_Show" to="Card_All_Test_Choose" method="OnButtonShowPressed"]
+[connection signal="pressed" from="Card_All_Test_Choose/UI_Choose/Button_Reset" to="Card_All_Test_Choose" method="OnButtonResetPressed"]
+[connection signal="pressed" from="Card_All_Test_Choose/UI_Show/VBox_Show/Button_Back" to="Card_All_Test_Choose" method="OnButtonBackPressed"]
+[connection signal="pressed" from="Card_All_Test_Choose/UI_Show/Button_StartBattle" to="Card_All_Test_Choose" method="OnStartBattlePressed"]

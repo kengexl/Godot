@@ -26,6 +26,8 @@ public partial class CardAllTestChoose : Control
 
     public override void _Ready()
     {
+        Player.GlobalSavedCurrentHp = -999;
+        GD.Print("✅ 选卡场景：已重置玩家血量状态");
         ClearAllData();
         LoadCardsFromCsv();
         GenerateSelectableCards();

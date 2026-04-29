@@ -15,10 +15,14 @@ public partial class BattleManager : Node2D
 
     [Export] public DrawPileUI DrawPile;
     [Export] public DiscardPileUI DiscardPile;
+     [Export] public HealthBar PlayerHealthBar;
+    [Export] public HealthBar EnemyHealthBar;
+
 
     [Export] public Label LabelCost;
     [Export] public Label LabelDebug1;
     [Export] public Label LabelDebug2;
+    
 
     public List<Card> HandCards = new();
     public int CurrentEnergy;
@@ -26,22 +30,94 @@ public partial class BattleManager : Node2D
     [Export] public int DrawCardCountPerTurn = 3;
     public bool IsBattleEnd;
 
-    public override void _Ready()
+   public override void _Ready()
+{
+    if (Instance != null && Instance != this) { QueueFree(); return; }
+    Instance = this;
+
+    GD.Print("=== BattleManager._Ready 开始 ===");
+
+    // 【新增】关键节点校验
+    if (Player == null || Enemy == null || HandContainer == null || CardPrefab == null || DrawPile == null || DiscardPile == null)
     {
-        if (Instance != null && Instance != this) { QueueFree(); return; }
-        Instance = this;
+        PrintDebug("错误", "关键节点未配置");
+        GD.PrintErr("❌ 关键节点未配置！");
+        return;
+    }
 
-        if (Player == null || Enemy == null || HandContainer == null || CardPrefab == null || DrawPile == null || DiscardPile == null)
-        {
-            PrintDebug("错误", "关键节点未配置");
-            return;
-        }
+    // 【新增】强制等待Player初始化完成
+    CallDeferred(nameof(DeferredBattleInit));
+}
 
-        // ====================== 步骤7 核心：优先加载自定义卡组 ======================
-        LoadCustomDeck();
-        // ==========================================================================
+// 【新增】延迟初始化战斗
+private void DeferredBattleInit()
+{
+    GD.Print("=== 延迟初始化战斗 ===");
+    GD.Print($"Player当前血量：{Player.CurrentHp}/{Player.MaxHp}");
 
-        StartPlayerTurn();
+    // 【新增】如果玩家血量还是0，强制设置为满血
+    if (Player.CurrentHp <= 0)
+    {
+        Player.CurrentHp = Player.MaxHp;
+        Player.GlobalSavedCurrentHp = Player.MaxHp;
+        GD.PrintErr($"⚠️ 玩家血量异常！已强制设为满血：{Player.CurrentHp}");
+        // 强制同步UI
+        Player.EmitSignal(CharacterBase.SignalName.HpChanged, Player.CurrentHp, Player.MaxHp);
+    }
+
+    LoadCustomDeck();
+    InitHealthBars();
+    StartPlayerTurn();
+    
+    GD.Print("=== BattleManager初始化完成 ===");
+}
+    
+    // 新增：初始化血条
+   private void InitHealthBars()
+    {
+        // 延迟一帧，确保Player和Enemy的_Ready先执行
+        CallDeferred(nameof(DeferredInitHealthBars));
+    }
+private void DeferredInitHealthBars()
+{
+    // 玩家血条初始化
+    if (Player != null && PlayerHealthBar != null)
+    {
+        PlayerHealthBar.Init(Player.MaxHp, Player.CurrentHp);
+        // 监听玩家血量变化
+        Player.Connect(CharacterBase.SignalName.HpChanged, Callable.From<int, int>(OnPlayerHpChanged));
+        GD.Print($"✅ 玩家血条初始化成功：{Player.CurrentHp}/{Player.MaxHp}");
+    }
+    else
+    {
+        GD.PrintErr("❌ Player 或 PlayerHealthBar 节点为空！");
+    }
+
+    // 敌人血条初始化（敌人每次新场景都重置血量）
+    if (Enemy != null && EnemyHealthBar != null)
+    {
+        // 敌人不需要全局保存，每次新场景重置为最大值
+        Enemy.CurrentHp = Enemy.MaxHp;
+        EnemyHealthBar.Init(Enemy.MaxHp, Enemy.CurrentHp);
+        // 监听敌人血量变化
+        Enemy.Connect(CharacterBase.SignalName.HpChanged, Callable.From<int, int>(OnEnemyHpChanged));
+        GD.Print($"✅ 敌人血条初始化成功：{Enemy.CurrentHp}/{Enemy.MaxHp}");
+    }
+    else
+    {
+        GD.PrintErr("❌ Enemy 或 EnemyHealthBar 节点为空！");
+    }
+}
+    // 新增：玩家血量变化回调
+    private void OnPlayerHpChanged(int currentHp, int maxHp)
+    {
+        PlayerHealthBar?.UpdateHealth(currentHp, maxHp);
+    }
+
+    // 新增：敌人血量变化回调
+    private void OnEnemyHpChanged(int currentHp, int maxHp)
+    {
+        EnemyHealthBar?.UpdateHealth(currentHp, maxHp);
     }
 
     // 新增：加载自定义卡组（有选卡用自定义，无则用默认）
@@ -110,49 +186,62 @@ public partial class BattleManager : Node2D
 
     public void StartPlayerTurn()
     {
-        if (IsBattleEnd) return;
+        if (IsBattleEnd) 
+        {
+            GD.Print("❌ 战斗已结束，跳过回合开始");
+            return;
+        }
+
+        // 【新增】检查玩家是否已经死亡，防止能打牌但不显示失败
+        if (Player.CurrentHp <= 0)
+        {
+            GD.Print("❌ 玩家血量已归0，触发失败");
+            GameLose();
+            return;
+        }
+
         CurrentEnergy = MaxEnergy;
         RefreshCostUI();
         DrawCards(DrawCardCountPerTurn);
-
+        
         foreach (var card in HandCards)
         {
             if (card != null)
                 card.MouseFilter = Control.MouseFilterEnum.Stop;
         }
+        
         PrintDebug("回合", "玩家回合开始");
     }
 
+   // 【修改】抽卡逻辑，增加战斗结束检查
     public void DrawCards(int total)
     {
-        int remaining = total;
+        if (IsBattleEnd) return;
 
+        int remaining = total;
         while (remaining > 0)
         {
             if (DrawPile.GetCount() == 0 && DiscardPile.GetCount() > 0)
             {
                 var discardCards = DiscardPile.GetAllCards();
                 discardCards = Shuffle(discardCards);
-
                 DrawPile.Clear();
                 DrawPile.AddCardsRange(discardCards);
                 DiscardPile.ClearAll();
-
                 PrintDebug("补抽", "弃牌堆 → 抽牌堆");
             }
-
             if (DrawPile.GetCount() == 0)
                 break;
-
             CardData data = DrawPile.DrawLastCard();
             Card card = CardPrefab.Instantiate<Card>();
             card.Data = data;
+            card.CurrentZone = Card.CardZone.Hand;
             HandContainer.AddChild(card);
             HandCards.Add(card);
-
             remaining--;
         }
     }
+
 
     public void PlayCard(Card card)
     {
@@ -188,21 +277,28 @@ public partial class BattleManager : Node2D
             }
         }
         HandCards.Clear();
-
+        
         foreach (var card in HandCards)
         {
             if (card != null)
                 card.MouseFilter = Control.MouseFilterEnum.Ignore;
         }
 
+        PrintDebug("回合", "玩家回合结束");
+
         GetTree().CreateTimer(1.0f).Timeout += () =>
         {
+            if (IsBattleEnd) return;
             Enemy.DoAction();
-            if (Player.CurrentHp <= 0) return;
+            
+            if (Player.CurrentHp <= 0) 
+            {
+                GD.Print("❌ 玩家被敌人击败，触发失败");
+                return;
+            }
+
             GetTree().CreateTimer(1.0f).Timeout += StartPlayerTurn;
         };
-
-        PrintDebug("回合", "玩家回合结束");
     }
 
    public void GameWin()
@@ -261,12 +357,29 @@ private void ShowVictoryPanel()
     uiLayer.AddChild(victoryPanel);
     GD.Print("✅【DEBUG-5】面板已添加到 Main.UILayer，执行完成！");
 }
+   // 【修改】游戏失败，确保逻辑正确
     public void GameLose()
     {
+        if (IsBattleEnd) return;
+        
         IsBattleEnd = true;
-        GetTree().Paused = true;
+        GetTree().Paused = false;
         PrintDebug("战斗", "失败！");
+        GD.Print("✅ 游戏失败逻辑触发");
+
+        HandCards.Clear();
+        DrawPile.Clear();
+        DiscardPile.ClearAll();
+        Instance = null;
+
+        string targetScenePath = "res://Scenes/Card_All_Test_Choose.tscn";
+        Error changeSceneErr = GetTree().ChangeSceneToFile(targetScenePath);
+        if (changeSceneErr != Error.Ok)
+        {
+            GD.PrintErr($"❌ 切换场景失败：{changeSceneErr}");
+        }
     }
+
 
     void RefreshCostUI()
     {

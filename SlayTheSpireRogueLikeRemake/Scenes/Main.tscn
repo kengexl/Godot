@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cdwlijv7m5owl"]
+[gd_scene load_steps=8 format=3 uid="uid://cdwlijv7m5owl"]
 
 [ext_resource type="Script" uid="uid://6268oopkdugl" path="res://Script/BattleManager.cs" id="1_r150o"]
 [ext_resource type="PackedScene" uid="uid://cjp45dyigft0q" path="res://Scenes/Player.tscn" id="2_idj7w"]
@@ -6,10 +6,11 @@
 [ext_resource type="PackedScene" uid="uid://b14s5ocd02v1y" path="res://Scenes/Enemy.tscn" id="3_kln2b"]
 [ext_resource type="PackedScene" uid="uid://dg55smn84r27l" path="res://Scenes/Discard_pile_ui.tscn" id="5_pbw6q"]
 [ext_resource type="PackedScene" uid="uid://cmayh5apuw3qj" path="res://Scenes/Draw_pile_ui.tscn" id="6_v1gob"]
+[ext_resource type="PackedScene" uid="uid://dbau3883bue36" path="res://Scenes/UI/health_bar.tscn" id="7_jw32o"]
 
 [node name="Main" type="Node2D"]
 
-[node name="BattleManager" type="Node2D" parent="." node_paths=PackedStringArray("Player", "Enemy", "HandContainer", "DrawPile", "DiscardPile", "LabelCost", "LabelDebug1", "LabelDebug2")]
+[node name="BattleManager" type="Node2D" parent="." node_paths=PackedStringArray("Player", "Enemy", "HandContainer", "DrawPile", "DiscardPile", "PlayerHealthBar", "EnemyHealthBar", "LabelCost", "LabelDebug1", "LabelDebug2")]
 position = Vector2(0, -3)
 script = ExtResource("1_r150o")
 Player = NodePath("../Player")
@@ -18,6 +19,8 @@ HandContainer = NodePath("../HandContainer")
 CardPrefab = ExtResource("2_rgh2o")
 DrawPile = NodePath("../DrawPileUI")
 DiscardPile = NodePath("../DiscardPileUI")
+PlayerHealthBar = NodePath("../HealthBarPlayer")
+EnemyHealthBar = NodePath("../HealthBar2Enemy")
 LabelCost = NodePath("../Label3")
 LabelDebug1 = NodePath("../Label")
 LabelDebug2 = NodePath("../Label2")
@@ -70,10 +73,10 @@ offset_right = -493.0
 offset_bottom = -975.0
 
 [node name="Player" parent="." instance=ExtResource("2_idj7w")]
-position = Vector2(-602, -583)
+position = Vector2(-602, -610)
 
 [node name="Enemy" parent="." instance=ExtResource("3_kln2b")]
-position = Vector2(547, -632)
+position = Vector2(556, -607)
 
 [node name="DiscardPileUI" parent="." instance=ExtResource("5_pbw6q")]
 position = Vector2(806, -38)
@@ -82,5 +85,17 @@ position = Vector2(806, -38)
 position = Vector2(-903, -59)
 
 [node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="HealthBarPlayer" parent="." instance=ExtResource("7_jw32o")]
+offset_left = -650.0
+offset_top = -705.0
+offset_right = -650.0
+offset_bottom = -705.0
+
+[node name="HealthBar2Enemy" parent="." instance=ExtResource("7_jw32o")]
+offset_left = 515.0
+offset_top = -706.0
+offset_right = 515.0
+offset_bottom = -706.0
 
 [connection signal="pressed" from="EndTurnButton" to="BattleManager" method="EndTurn"]

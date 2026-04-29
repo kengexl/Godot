@@ -29,19 +29,19 @@ public partial class EnemyBase : CharacterBase
     /// <summary>
     /// 怪物死亡时触发
     /// </summary>
-    public override void Die()
+   public override void Die()
+{
+    GD.Print($"{EnemyName} 被击败！战斗胜利！");
+    
+    // 通知BattleManager游戏胜利
+    if (BattleManager.Instance != null)
     {
-        GD.Print($"{EnemyName} 被击败！战斗胜利！");
-        
-        // 通知 BattleManager 游戏胜利
-        if (BattleManager.Instance != null)
-        {
-            BattleManager.Instance.GameWin();
-        }
-        
-        // 发射死亡信号（可以用来播放死亡动画、掉落奖励）
-        EmitSignal(SignalName.Died);
+        BattleManager.Instance.GameWin();
     }
+    
+    // 调用基类Die方法，自动发射Died信号，彻底解决报错
+    base.Die();
+}
 
     /// <summary>
     /// 怪物AI行动（回合结束时自动调用）

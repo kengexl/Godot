@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbau3883bue36"]
+
+[ext_resource type="Script" uid="uid://cn3lefa8q2l6g" path="res://Script/HealthBar.cs" id="1_qyqjh"]
+
+[node name="HealthBar" type="Control" node_paths=PackedStringArray("_hpBar", "_hpLabel")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qyqjh")
+_hpBar = NodePath("ProgressBar")
+_hpLabel = NodePath("Label")
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_right = 450.0
+offset_bottom = 27.0
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 5.0
+offset_right = 45.0
+offset_bottom = 23.0

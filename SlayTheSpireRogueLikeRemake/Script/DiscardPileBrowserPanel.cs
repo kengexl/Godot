@@ -88,47 +88,46 @@ public partial class DiscardPileBrowserPanel : Node2D
             return;
         }
 
-        foreach (var data in cardDatas)
+       // 在 ShowDiscardCards 方法中，生成卡牌时设置区域
+foreach (var data in cardDatas)
+{
+    if (data == null) continue;
+    try
+    {
+        Node instance = cardScene.Instantiate();
+        if (!(instance is Card card))
         {
-            if (data == null) continue;
-
+            instance.QueueFree();
+            continue;
+        }
+        card.SetCardData(data);
+        
+        // 【修改点】标记为弃牌堆卡牌，禁止打出
+        card.CurrentZone = Card.CardZone.DiscardPile;
+        card.DisableBattleClick();
+        card.MouseFilter = Control.MouseFilterEnum.Ignore; // 完全忽略点击
+        
+        // 双重保险防拉伸
+        if (card is Control controlCard)
+        {
             try
             {
-                Node instance = cardScene.Instantiate();
-                if (!(instance is Card card))
-                {
-                    instance.QueueFree();
-                    continue;
-                }
-
-                card.SetCardData(data);
-
-                // 🔥 双重保险防拉伸（兼容所有Godot 4版本）
-                if (card is Control controlCard)
-                {
-                    // 1. 设置SizeFlags为收缩居中（通用写法，不会报错）
-                    try
-                    {
-                        controlCard.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-                        controlCard.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-                    }
-                    catch
-                    {
-                        // 极端版本兼容失败时，跳过，靠下面的固定大小兜底
-                        GD.Print("⚠️ SizeFlags设置兼容跳过");
-                    }
-
-                    // 2. 强制设置固定最小大小，防止被容器拉伸（兜底方案）
-                    controlCard.CustomMinimumSize = CardFixedSize;
-                }
-
-                CardList.AddChild(card);
+                controlCard.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+                controlCard.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
             }
-            catch (System.Exception ex)
+            catch
             {
-                GD.PrintErr($"❌ 卡牌加载异常：{ex.Message}");
+                GD.Print("⚠️ SizeFlags设置兼容跳过");
             }
+            controlCard.CustomMinimumSize = CardFixedSize;
         }
+        CardList.AddChild(card);
+    }
+    catch (System.Exception ex)
+    {
+        GD.PrintErr($"❌ 卡牌加载异常：{ex.Message}");
+    }
+}
     }
     #endregion
 
