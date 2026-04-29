@@ -20,6 +20,7 @@ public partial class CardAllTestChoose : Control
     private Dictionary<string, int> _selectedDict = new();
     private Dictionary<string, Control> _cardUiDict = new();
     private List<CardData> _finalDeck = new();
+    public static List<CardData> GlobalAllCardsCache = new();
 
     public static List<CardData> GlobalBattleDeck = new();
 
@@ -38,6 +39,7 @@ public partial class CardAllTestChoose : Control
     {
         string path = "res://Data/cards.csv";
         _allCards = CsvReader.ReadCardsFromCsv(path);
+        GlobalAllCardsCache = new List<CardData>(_allCards);
     }
 
     private void GenerateSelectableCards()
@@ -177,7 +179,7 @@ public partial class CardAllTestChoose : Control
     {
         _selectedDict.Clear();
         _finalDeck.Clear();
-        GlobalBattleDeck.Clear();
+       
     }
     #endregion
 }

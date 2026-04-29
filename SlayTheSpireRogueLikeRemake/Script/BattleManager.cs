@@ -46,26 +46,27 @@ public partial class BattleManager : Node2D
 
     // 新增：加载自定义卡组（有选卡用自定义，无则用默认）
     private void LoadCustomDeck()
+{
+    try
     {
-        try
+        // ✅ 确认每次都读取最新的 GlobalBattleDeck
+        if (CardAllTestChoose.GlobalBattleDeck != null && CardAllTestChoose.GlobalBattleDeck.Count > 0)
         {
-            // 优先使用我们选择的全局卡组
-            if (CardAllTestChoose.GlobalBattleDeck != null && CardAllTestChoose.GlobalBattleDeck.Count > 0)
-            {
-                PrintDebug("自定义卡组", $"加载成功：{CardAllTestChoose.GlobalBattleDeck.Count} 张");
-                DrawPile.AddCardsRange(CardAllTestChoose.GlobalBattleDeck);
-                return;
-            }
-
-            // 无自定义卡组 → 加载默认CSV卡组（原有逻辑）
-            LoadCardsFromCSV();
+            PrintDebug("自定义卡组", $"加载成功：{CardAllTestChoose.GlobalBattleDeck.Count} 张");
+            GD.Print($"【BattleManager】加载自定义卡组，卡牌列表：{string.Join("、", CardAllTestChoose.GlobalBattleDeck.Select(c => c.CardName))}");
+            DrawPile.AddCardsRange(CardAllTestChoose.GlobalBattleDeck);
+            return;
         }
-        catch (Exception e)
-        {
-            PrintDebug("错误", e.Message);
-            LoadCardsFromCSV();
-        }
+        // 无自定义卡组 → 加载默认CSV
+        LoadCardsFromCSV();
     }
+    catch (Exception e)
+    {
+        PrintDebug("错误", e.Message);
+        LoadCardsFromCSV();
+    }
+}
+
 
     // 原有默认卡组加载逻辑（保留）
     void LoadCardsFromCSV()
@@ -204,13 +205,62 @@ public partial class BattleManager : Node2D
         PrintDebug("回合", "玩家回合结束");
     }
 
-    public void GameWin()
+   public void GameWin()
+{
+    GD.Print("✅【DEBUG-1】GameWin 胜利方法被触发！");
+    IsBattleEnd = true;
+    GetTree().Paused = true;
+    PrintDebug("战斗", "胜利！");
+
+    // 调用选卡面板
+    ShowVictoryPanel();
+}
+
+private void ShowVictoryPanel()
+{
+    GD.Print("✅【DEBUG-2】开始加载胜利面板 (Main场景内实例化)");
+    
+    // 1. 获取胜利面板场景（注意：这里路径必须和你文件系统里的一致！）
+    // 右键点击你的胜利面板tscn文件 -> 复制路径，粘贴到下面
+    string panelScenePath = "res://Scenes/victory_panel.tscn"; 
+    
+    PackedScene victoryScene = GD.Load<PackedScene>(panelScenePath);
+    
+    if (victoryScene == null)
     {
-        IsBattleEnd = true;
-        GetTree().Paused = true;
-        PrintDebug("战斗", "胜利！");
+        GD.PrintErr($"❌【DEBUG-ERROR】路径错误！找不到文件：{panelScenePath}");
+        return;
+    }
+    GD.Print("✅【DEBUG-3】胜利面板场景加载成功");
+
+    // 2. 实例化面板
+    Control victoryPanel = victoryScene.Instantiate<Control>();
+    if (victoryPanel == null)
+    {
+        GD.PrintErr("❌【DEBUG-ERROR】实例化失败！根节点不是Control");
+        return;
+    }
+    
+    // 3. 找到Main场景里的 UILayer 并添加进去
+    // 这里的 "UILayer" 必须和你第一步在Main场景里取的名字一模一样
+    Node uiLayer = GetNodeOrNull("/root/Main/UILayer"); 
+    
+    // 容错写法：如果上面绝对路径找不到，尝试在当前场景下找
+    if (uiLayer == null)
+    {
+        uiLayer = GetTree().CurrentScene.GetNodeOrNull("UILayer");
     }
 
+    if (uiLayer == null)
+    {
+        GD.PrintErr("❌【DEBUG-ERROR】Main场景里找不到名为 'UILayer' 的节点！");
+        return;
+    }
+
+    // 4. 加入场景
+    uiLayer.AddChild(victoryPanel);
+    GD.Print("✅【DEBUG-5】面板已添加到 Main.UILayer，执行完成！");
+}
     public void GameLose()
     {
         IsBattleEnd = true;

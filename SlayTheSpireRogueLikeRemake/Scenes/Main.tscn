@@ -18,9 +18,9 @@ HandContainer = NodePath("../HandContainer")
 CardPrefab = ExtResource("2_rgh2o")
 DrawPile = NodePath("../DrawPileUI")
 DiscardPile = NodePath("../DiscardPileUI")
-LabelCost = NodePath("../Label")
-LabelDebug1 = NodePath("../Label2")
-LabelDebug2 = NodePath("../Label3")
+LabelCost = NodePath("../Label3")
+LabelDebug1 = NodePath("../Label")
+LabelDebug2 = NodePath("../Label2")
 DrawCardCountPerTurn = 5
 
 [node name="HandContainer" type="HBoxContainer" parent="."]
@@ -79,6 +79,8 @@ position = Vector2(547, -632)
 position = Vector2(806, -38)
 
 [node name="DrawPileUI" parent="." instance=ExtResource("6_v1gob")]
-position = Vector2(-903, -22)
+position = Vector2(-903, -59)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
 
 [connection signal="pressed" from="EndTurnButton" to="BattleManager" method="EndTurn"]
